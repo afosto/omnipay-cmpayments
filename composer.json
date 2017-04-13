@@ -1,0 +1,25 @@
+{
+    "name": "afosto/omnipay-cm",
+    "type": "library",
+    "description": "CM Payments driver for the Omnipay payment processing library",
+    "keywords": [
+        "cm",
+        "gateway",
+        "merchant",
+        "omnipay",
+        "payments"
+    ],
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Afosto Team",
+            "homepage": "https://afosto.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Omnipay\\CmPayments\\" : "src/" }
+    },
+    "require": {
+        "omnipay/common": "^2.5"
+    }
+}
