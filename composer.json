@@ -1,5 +1,5 @@
 {
-    "name": "afosto/omnipay-cm",
+    "name": "afosto/omnipay-cmpayments",
     "type": "library",
     "description": "CM Payments driver for the Omnipay payment processing library",
     "keywords": [
