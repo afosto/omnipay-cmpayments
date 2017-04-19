@@ -7,15 +7,15 @@ class FetchPaymentMethodsRequest extends AbstractRequest {
     /**
      * @return string
      */
-    public function getUri() {
-        return '/payment_methods/v1';
+    public function getMethod() {
+        return AbstractRequest::METHOD_GET;
     }
 
     /**
      * @return string
      */
-    public function getMethod() {
-        return 'GET';
+    public function getUri() {
+        return '/payment_methods/v1';
     }
 
     /**

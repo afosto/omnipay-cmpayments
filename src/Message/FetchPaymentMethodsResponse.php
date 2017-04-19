@@ -13,6 +13,11 @@ class FetchPaymentMethodsResponse extends AbstractResponse implements FetchPayme
      * @return \Omnipay\Common\PaymentMethod[]
      */
     public function getPaymentMethods() {
-        //WIP
+        $paymentMethods = [];
+        foreach ($this->data as $method => $opitons) {
+            $paymentMethods[] = new PaymentMethod($method, $method);
+        }
+
+        return $paymentMethods;
     }
 }

@@ -8,14 +8,14 @@ class FetchIssuersRequest extends AbstractRequest {
      * @return string
      */
     public function getMethod() {
-        return 'GET';
+        return AbstractRequest::METHOD_GET;
     }
 
     /**
      * @return string
      */
     public function getUri() {
-        return 'issuers/v1/ideal';
+        return '/issuers/v1/ideal';
     }
 
     /**

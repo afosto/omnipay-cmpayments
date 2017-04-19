@@ -12,6 +12,11 @@ class FetchIssuersResponse extends AbstractResponse implements FetchIssuersRespo
      * @return \Omnipay\Common\Issuer[]
      */
     public function getIssuers() {
-        //WIP
+        $issuers = [];
+        foreach ($this->data as $name => $id) {
+            $issuers[] = new Issuer($id, $name);
+        }
+
+        return $issuers;
     }
 }

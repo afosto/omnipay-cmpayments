@@ -4,11 +4,12 @@ namespace Omnipay\CmPayments\Message;
 use Omnipay\Common\Message\RedirectResponseInterface;
 
 class FetchTransactionResponse extends AbstractResponse implements RedirectResponseInterface {
+
     /**
      * {@inheritdoc}
      */
     public function isRedirect() {
-        return isset($this->data['authentication_url']);
+        return isset($this->data['payments'][0]['payment_details']['authentication_url']);
     }
 
     /**
@@ -16,7 +17,7 @@ class FetchTransactionResponse extends AbstractResponse implements RedirectRespo
      */
     public function getRedirectUrl() {
         if ($this->isRedirect()) {
-            return $this->data['authentication_url'];
+            return $this->data['payments'][0]['payment_details']['authentication_url'];
         }
     }
 
@@ -73,8 +74,8 @@ class FetchTransactionResponse extends AbstractResponse implements RedirectRespo
      * @return mixed
      */
     public function getTransactionReference() {
-        if (isset($this->data['payment_id'])) {
-            return $this->data['payment_id'];
+        if (isset($this->data['payments'][0]['payment_id'])) {
+            return $this->data['payments'][0]['payment_id'];
         }
     }
 
@@ -82,8 +83,8 @@ class FetchTransactionResponse extends AbstractResponse implements RedirectRespo
      * @return mixed
      */
     public function getTransactionId() {
-        if (isset($this->data['payment_id'])) {
-            return $this->data['payment_id'];
+        if (isset($this->data['payments'][0]['payment_id'])) {
+            return $this->data['payments'][0]['payment_id'];
         }
     }
 
