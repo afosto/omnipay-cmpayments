@@ -12,15 +12,15 @@ class FetchTransactionRequest extends AbstractRequest {
     /**
      * @return string
      */
-    public function getUri() {
-        return '/payments/v1/' . $this->getTransactionReference();
+    public function getMethod() {
+        return AbstractRequest::METHOD_GET;
     }
 
     /**
      * @return string
      */
-    public function getMethod() {
-        return 'GET';
+    public function getUri() {
+        return '/payments/v1/' . $this->getTransactionReference();
     }
 
     /**

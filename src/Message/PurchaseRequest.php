@@ -15,20 +15,27 @@ class PurchaseRequest extends AbstractRequest {
     public function getData() {
         $data['amount'] = round($this->getAmount(), 2);
         $data['currency'] = $this->getCurrency();
-        $data['payment_method'] = $this->getPaymentMethod();
-        $data['due_date'] = $this->getDueDate();
 
-        $paymentDetails['expires_at'] = $this->getExpiryDate();
+        $payment = [
+            'amount'          => round($this->getAmount(), 2),
+            'currency'        => $this->getCurrency(),
+            'payment_method'  => $this->getPaymentMethod(),
+            'payment_details' => [
+                'description'   => $this->getDescription(),
+                'success_url'   => $this->getReturnUrl(),
+                'cancelled_url' => $this->getReturnUrl(),
+                'failed_url'    => $this->getReturnUrl(),
+                'expired_url'   => $this->getReturnUrl(),
+                'callback_url'  => $this->getNotifyUrl(),
+                'consumer_name' => $this->getCard()->getBillingName(),
+                'purchase_id'   => $this->getDescription(),
+            ],
+        ];
+
         if ($this->getPaymentMethod() == 'iDEAL' && $this->getIssuer()) {
-            $paymentDetails['issuer_id'] = $this->getIssuer();
+            $payment['payment_details']['issuer_id'] = $this->getIssuer();
         }
-        $paymentDetails['description'] = $this->getDescription();
-        $paymentDetails['success_url'] = $paymentDetails['cancelled_url'] = $paymentDetails['failed_url'] = $paymentDetails['expired_url'] = $this->getReturnUrl();
-        $paymentDetails['callback_url'] = $this->getNotifyUrl();
-        $paymentDetails['consumer_name'] = $this->getCard()->getBillingName();
-        //$paymentDetails['purchase_id']
-
-        $data['payment_details'] = $paymentDetails;
+        $data['payments'] = [$payment];
 
         return $data;
     }
@@ -44,7 +51,7 @@ class PurchaseRequest extends AbstractRequest {
      * @return string
      */
     public function getMethod() {
-        return 'POST';
+        return AbstractRequest::METHOD_POST;
     }
 
     /**
@@ -53,6 +60,8 @@ class PurchaseRequest extends AbstractRequest {
      * @return PurchaseResponse
      */
     public function sendData($data) {
-        return new PurchaseResponse($this, $this->sendRequest($data)->json());
+        $httpResponse = $this->sendRequest($data);
+
+        return $this->response = new PurchaseResponse($this, $httpResponse->json());
     }
 }

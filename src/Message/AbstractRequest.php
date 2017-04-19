@@ -2,17 +2,17 @@
 
 namespace Omnipay\CmPayments\Message;
 
+use Guzzle\Common\Event;
+
 abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
 
-    /**
-     * Key generation method
-     */
     const SIGNATURE_METHOD = 'HMAC-SHA256';
 
-    /**
-     * API Oauth version
-     */
     const VERSION = '1.0';
+
+    const METHOD_POST = 'POST';
+
+    const METHOD_GET = 'GET';
 
     /**
      * The salt for this request
@@ -27,7 +27,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
     private $_timestamp;
 
     /**
-     * Method
+     * Returns the request method that should be used
      * @return string
      */
     abstract public function getMethod();
@@ -46,6 +46,15 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
     }
 
     /**
+     * @param $value
+     *
+     * @return $this
+     */
+    public function setOauthConsumerKey($value) {
+        return $this->setParameter('oauthConsumerKey', $value);
+    }
+
+    /**
      * @return string|null
      */
     public function getOauthConsumerSecret() {
@@ -53,23 +62,12 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
     }
 
     /**
-     * Get the authorization header
+     * @param $value
      *
-     * @return string
-     *
-     * @see https://docs.cmtelecom.com/payments/v0.2#/authentication%7Cbuilding_the_header_string
+     * @return $this
      */
-    public function getAuthorizationHeader($data) {
-        $header = rawurlencode(implode(',', [
-            'oauth_consumer_key'     => $this->getOauthConsumerKey(),
-            'oauth_nonce'            => $this->_getNonce(),
-            'oauth_signature'        => $this->_getSignature($data),
-            'oauth_signature_method' => self::SIGNATURE_METHOD,
-            'oauth_timestamp'        => (string)$this->_getTimestamp(),
-            'oauth_version'          => self::VERSION,
-        ]));
-
-        return $header;
+    public function setOauthConsumerSecret($value) {
+        return $this->setParameter('oauthConsumerSecret', $value);
     }
 
     /**
@@ -80,22 +78,6 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
     }
 
     /**
-     * Due date is now plus 3 hours
-     *
-     * @return int
-     */
-    public function getDueDate() {
-        return time() + (60 * 60 * 3);
-    }
-
-    /**
-     * @return int
-     */
-    public function getExpiryDate() {
-        return $this->getDueDate();
-    }
-
-    /**
      * Send the data
      *
      * @param array $data
@@ -103,55 +85,75 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
      * @return AbstractResponse
      */
     public function sendRequest($data) {
+        $this->httpClient->getEventDispatcher()->addListener('request.error', function (Event $event) use ($data) {
+            $response = $event['response'];
+            if ($response->isError()) {
+                $event->stopPropagation();
+            }
+        });
+
         $httpRequest = $this->httpClient->createRequest(
             $this->getMethod(),
-            $this->getEndpoint() . '/' . $this->getUri(),
-            ['Autorization' => 'Oauth ' . $this->getAuthorizationHeader($data)],
-            $data);
+            $this->getEndpoint() . $this->getUri(),
+            [
+                'Content-type'  => 'application/json',
+                'Authorization' => "OAuth " . $this->_getAuthorizationHeader(),
+            ],
+            ($this->getMethod() !== self::METHOD_POST ? null : json_encode($data))
+        );
 
-        return $this->response = $httpRequest->send();
+        return $httpRequest->send();
+    }
+
+    /**
+     * Get the authorization header
+     *
+     * @return string
+     *
+     * @see https://docs.cmtelecom.com/payments/v0.2#/authentication%7Cbuilding_the_header_string
+     */
+    private function _getAuthorizationHeader() {
+        $header = '';
+        foreach ([
+                     'oauth_consumer_key'     => $this->getOauthConsumerKey(),
+                     'oauth_nonce'            => $this->_getNonce(),
+                     'oauth_signature'        => $this->_getSignature(),
+                     'oauth_signature_method' => self::SIGNATURE_METHOD,
+                     'oauth_timestamp'        => (string)$this->_getTimestamp(),
+                     'oauth_version'          => self::VERSION,
+                 ] as $key => $value) {
+            $header .= $key . '="' . $value . '", ';
+        }
+
+        return substr($header, 0, -2);
     }
 
     /**
      * Returns the signature
      *
-     * @param array $data
-     *
      * @return string
      */
-    private function _getSignature($data) {
-        //Get the fixed parts of the signature
-        $signatureParts = [
-            'oauth_consumer_key'     => $this->getOauthConsumerKey(),
-            'oauth_nonce'            => $this->_getNonce(),
-            'oauth_signature_method' => self::SIGNATURE_METHOD,
-            'oauth_timestamp'        => (string)$this->_getTimestamp(),
-            'oauth_version'          => self::VERSION,
+    private function _getSignature() {
+        $parameters = [
+            rawurlencode("oauth_consumer_key=" . $this->getOauthConsumerKey()),
+            rawurlencode("oauth_nonce=" . $this->_getNonce()),
+            rawurlencode("oauth_signature_method=" . self::SIGNATURE_METHOD),
+            rawurlencode("oauth_timestamp=" . (string)$this->_getTimestamp()),
+            rawurlencode("oauth_version=" . self::VERSION),
         ];
-        array_walk($signatureParts, function (&$value, &$key) {
-            $value = rawurlencode($value);
-            $key = rawurlencode($key);
-        });
 
-        //Build the parameter string
-        $signatureBase = json_encode($data);
-        $signatureBase .= '&' . http_build_query($signatureParts);
+        if ($this->getMethod() === self::METHOD_POST) {
+            $parameters = array_merge([rawurlencode(json_encode($this->getData()))], $parameters);
+        }
 
-        //Create the signature base
-        $signatureBase = $this->getMethod() . '&' . rawurlencode($this->getEndpoint() .
-                $this->getUri()) . '&' . rawurlencode($signatureBase);
+        //Result of all parameters
+        $signatureBase = $this->getMethod() . '&' . rawurlencode($this->getEndpoint() . $this->getUri()) . '&' .
+            implode(rawurlencode('&'), $parameters);
 
-        return base64_encode(hash_hmac('sha256', $signatureBase, pack("H*", $this->_getSigningKey()), true));
-    }
+        //Combination of keys
+        $signingKey = rawurlencode($this->getOauthConsumerKey()) . '&' . rawurlencode($this->getOauthConsumerSecret());
 
-    /**
-     * @return string
-     */
-    private function _getSigningKey() {
-        return implode('&', [
-            $this->getOauthConsumerKey(),
-            $this->getOauthConsumerSecret(),
-        ]);
+        return rawurlencode(base64_encode(hash_hmac('sha256', $signatureBase, $signingKey)));
     }
 
     /**
@@ -159,7 +161,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
      */
     private function _getNonce() {
         if ($this->_nonce === null) {
-            $this->_nonce = base64_encode(openssl_random_pseudo_bytes(32));
+            $this->_nonce = md5(openssl_random_pseudo_bytes(32));
         }
 
         return $this->_nonce;
