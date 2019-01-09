@@ -74,7 +74,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
      * @return string
      */
     public function getEndpoint() {
-        return 'https://api.cmpayments.com';
+        return 'https://api-proxy.cmpayments.com';
     }
 
     /**
