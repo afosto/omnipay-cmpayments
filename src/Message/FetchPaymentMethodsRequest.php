@@ -19,6 +19,14 @@ class FetchPaymentMethodsRequest extends AbstractRequest {
     }
 
     /**
+     * Override the fetch payment API because the proxy has no support for this endpoint
+     * @return string
+     */
+    public function getEndpoint() {
+        return 'https://api.cmpayments.com';
+    }
+    
+    /**
      * Get the raw data array for this message. The format of this varies from gateway to
      * gateway, but will usually be either an associative array, or a SimpleXMLElement.
      *
