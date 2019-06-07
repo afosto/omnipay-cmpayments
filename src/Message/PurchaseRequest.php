@@ -35,6 +35,10 @@ class PurchaseRequest extends AbstractRequest {
         if ($this->getPaymentMethod() == 'iDEAL' && $this->getIssuer()) {
             $payment['payment_details']['issuer_id'] = $this->getIssuer();
         }
+        // for credit cards we have to pass allong these issuers
+        if ($this->getPaymentMethod() == 'Creditcard') {
+            $payment['payment_details']['issuers'] = ['MasterCard','Visa'];
+        }
         $data['payments'] = [$payment];
 
         return $data;
