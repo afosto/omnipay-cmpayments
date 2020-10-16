@@ -14,7 +14,7 @@ to your `composer.json` file:
 ```json
 {
     "require": {
-        "afosto/omnipay-cmpayments": "~1.0"
+        "afosto/omnipay-cmpayments": "^2"
     }
 }
 ```
