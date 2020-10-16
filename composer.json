@@ -20,6 +20,8 @@
         "psr-4": { "Omnipay\\CmPayments\\" : "src/" }
     },
     "require": {
-        "omnipay/common": "^2.5"
+        "league/omnipay": "^3",
+        "ext-json": "*",
+        "ext-openssl": "*"
     }
 }

@@ -1,7 +1,8 @@
 <?php
 namespace Omnipay\CmPayments\Message;
 
-class PurchaseResponse extends FetchTransactionResponse {
+class PurchaseResponse extends FetchTransactionResponse
+{
 
     /**
      * When you do a `purchase` the request is never successful because
@@ -9,7 +10,8 @@ class PurchaseResponse extends FetchTransactionResponse {
      *
      * {@inheritdoc}
      */
-    public function isSuccessful() {
+    public function isSuccessful()
+    {
         return false;
     }
 }

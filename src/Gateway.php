@@ -2,34 +2,51 @@
 
 namespace Omnipay\CmPayments;
 
+use Omnipay\CmPayments\Message\FetchPaymentMethodsRequest;
+use Omnipay\Common\AbstractGateway;
+use Omnipay\Common\Message\RequestInterface;
+
 use Omnipay\CmPayments\Message\CompletePurchaseRequest;
-use Omnipay\CmPayments\Message\FetchIssuersRequest;
 use Omnipay\CmPayments\Message\FetchTransactionRequest;
 use Omnipay\CmPayments\Message\PurchaseRequest;
-use Omnipay\Common\AbstractGateway;
 
-class Gateway extends AbstractGateway {
+/**
+ * @method RequestInterface authorize(array $options = array())
+ * @method RequestInterface completeAuthorize(array $options = array())
+ * @method RequestInterface void(array $options = array())
+ * @method RequestInterface createCard(array $options = array())
+ * @method RequestInterface updateCard(array $options = array())
+ * @method RequestInterface deleteCard(array $options = array())
+ * @method RequestInterface acceptNotification(array $options = array())
+ */
+class Gateway extends AbstractGateway
+{
     /**
      * @return string
      */
-    public function getName() {
+    public function getName()
+    {
         return 'CM Payments';
     }
 
     /**
      * @return array
      */
-    public function getDefaultParameters() {
+    public function getDefaultParameters()
+    {
         return [
             'oauthConsumerKey'    => '',
             'oauthConsumerSecret' => '',
+            'paymentEndpoint'     => 'https://api-proxy.cmpayments.com',
+            'endpoint'            => 'https://api.cmpayments.com',
         ];
     }
 
     /**
      * @return string|null
      */
-    public function getOauthConsumerKey() {
+    public function getOauthConsumerKey()
+    {
         return $this->getParameter('oauthConsumerKey');
     }
 
@@ -38,14 +55,16 @@ class Gateway extends AbstractGateway {
      *
      * @return $this
      */
-    public function setOauthConsumerKey($value) {
+    public function setOauthConsumerKey($value)
+    {
         return $this->setParameter('oauthConsumerKey', $value);
     }
 
     /**
      * @return string|null
      */
-    public function getOauthConsumerSecret() {
+    public function getOauthConsumerSecret()
+    {
         return $this->getParameter('oauthConsumerSecret');
     }
 
@@ -54,52 +73,62 @@ class Gateway extends AbstractGateway {
      *
      * @return $this
      */
-    public function setOauthConsumerSecret($value) {
+    public function setOauthConsumerSecret($value)
+    {
         return $this->setParameter('oauthConsumerSecret', $value);
     }
 
     /**
      * @param array $parameters
      *
-     * @return FetchIssuersRequest
+     * @return \Omnipay\Common\Message\AbstractRequest|FetchPaymentMethodsRequest
      */
-    public function fetchIssuers(array $parameters = []) {
+    public function fetchIssuers(array $parameters = [])
+    {
+        $parameters['endpoint'] = $this->getParameter('endpoint');
         return $this->createRequest('\Omnipay\CmPayments\Message\FetchIssuersRequest', $parameters);
     }
 
     /**
      * @param array $parameters
-     *
-     * @return FetchIssuersRequest
+     * @return \Omnipay\Common\Message\AbstractRequest|FetchPaymentMethodsRequest
      */
-    public function fetchPaymentMethods(array $parameters = []) {
-        return $this->createRequest('\Omnipay\CmPayments\Message\FetchPaymentMethodsRequest', $parameters);
+    public function fetchPaymentMethods(array $parameters = [])
+    {
+        $parameters['endpoint'] = $this->getParameter('endpoint');
+        return $this->createRequest(FetchPaymentMethodsRequest::class, $parameters);
     }
 
     /**
-     * @param  array $parameters
+     * @param array $parameters
      *
-     * @return FetchTransactionRequest
+     * @return \Omnipay\Common\Message\AbstractRequest|FetchTransactionRequest
      */
-    public function fetchTransaction(array $parameters = []) {
+    public function fetchTransaction(array $parameters = [])
+    {
+        $parameters['endpoint'] = $this->getParameter('paymentEndpoint');
         return $this->createRequest('\Omnipay\CmPayments\Message\FetchTransactionRequest', $parameters);
     }
 
     /**
-     * @param  array $parameters
+     * @param array $parameters
      *
-     * @return PurchaseRequest
+     * @return \Omnipay\Common\Message\AbstractRequest|PurchaseRequest
      */
-    public function purchase(array $parameters = []) {
+    public function purchase(array $parameters = [])
+    {
+        $parameters['endpoint'] = $this->getParameter('paymentEndpoint');
         return $this->createRequest('\Omnipay\CmPayments\Message\PurchaseRequest', $parameters);
     }
 
     /**
-     * @param  array $parameters
+     * @param array $parameters
      *
-     * @return CompletePurchaseRequest
+     * @return \Omnipay\Common\Message\AbstractRequest|CompletePurchaseRequest
      */
-    public function completePurchase(array $parameters = []) {
+    public function completePurchase(array $parameters = [])
+    {
+        $parameters['endpoint'] = $this->getParameter('paymentEndpoint');
         return $this->createRequest('\Omnipay\CmPayments\Message\CompletePurchaseRequest', $parameters);
     }
 
@@ -109,7 +138,8 @@ class Gateway extends AbstractGateway {
      * @return void
      * @throws \Exception
      */
-    public function refund(array $parameters = []) {
+    public function refund(array $parameters = [])
+    {
         throw new \Exception('Not implemented');
     }
 
@@ -119,7 +149,8 @@ class Gateway extends AbstractGateway {
      * @return void
      * @throws \Exception
      */
-    public function capture(array $parameters = []) {
+    public function capture(array $parameters = [])
+    {
         throw new \Exception('Not implemented');
     }
 }

@@ -6,13 +6,15 @@ namespace Omnipay\CmPayments\Message;
  *
  * @method \Omnipay\CmPayments\Message\PurchaseResponse send()
  */
-class PurchaseRequest extends AbstractRequest {
+class PurchaseRequest extends AbstractRequest
+{
 
     /**
      * Return the data formatted
      * @return array
      */
-    public function getData() {
+    public function getData()
+    {
         $data['amount'] = round($this->getAmount(), 2);
         $data['currency'] = $this->getCurrency();
 
@@ -47,14 +49,16 @@ class PurchaseRequest extends AbstractRequest {
     /**
      * @return string
      */
-    public function getUri() {
+    public function getUri()
+    {
         return '/charges/v1';
     }
 
     /**
      * @return string
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return AbstractRequest::METHOD_POST;
     }
 
@@ -63,9 +67,10 @@ class PurchaseRequest extends AbstractRequest {
      *
      * @return PurchaseResponse
      */
-    public function sendData($data) {
+    public function sendData($data)
+    {
         $httpResponse = $this->sendRequest($data);
 
-        return $this->response = new PurchaseResponse($this, $httpResponse->json());
+        return $this->response = new PurchaseResponse($this, $httpResponse);
     }
 }

@@ -9,14 +9,16 @@ use Omnipay\Common\Exception\InvalidRequestException;
  *
  * @method CompletePurchaseResponse send()
  */
-class CompletePurchaseRequest extends FetchTransactionRequest {
+class CompletePurchaseRequest extends FetchTransactionRequest
+{
 
     /**
      * @param mixed $data
      *
      * @return CompletePurchaseResponse
      */
-    public function sendData($data) {
-        return new CompletePurchaseResponse($this, $this->sendRequest($data)->json());
+    public function sendData($data)
+    {
+        return new CompletePurchaseResponse($this, $this->sendRequest($data));
     }
 }

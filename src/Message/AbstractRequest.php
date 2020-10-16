@@ -2,9 +2,8 @@
 
 namespace Omnipay\CmPayments\Message;
 
-use Guzzle\Common\Event;
-
-abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
+abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
+{
 
     const SIGNATURE_METHOD = 'HMAC-SHA256';
 
@@ -18,13 +17,13 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
      * The salt for this request
      * @var string
      */
-    private $_nonce;
+    private $nonce;
 
     /**
      * The timestamp for this request
      * @var integer
      */
-    private $_timestamp;
+    private $timestamp;
 
     /**
      * Returns the request method that should be used
@@ -41,7 +40,8 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
     /**
      * @return string|null
      */
-    public function getOauthConsumerKey() {
+    public function getOauthConsumerKey()
+    {
         return $this->getParameter('oauthConsumerKey');
     }
 
@@ -50,14 +50,16 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
      *
      * @return $this
      */
-    public function setOauthConsumerKey($value) {
+    public function setOauthConsumerKey($value)
+    {
         return $this->setParameter('oauthConsumerKey', $value);
     }
 
     /**
      * @return string|null
      */
-    public function getOauthConsumerSecret() {
+    public function getOauthConsumerSecret()
+    {
         return $this->getParameter('oauthConsumerSecret');
     }
 
@@ -66,43 +68,46 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
      *
      * @return $this
      */
-    public function setOauthConsumerSecret($value) {
+    public function setOauthConsumerSecret($value)
+    {
         return $this->setParameter('oauthConsumerSecret', $value);
     }
+
+    public function setEndpoint($value)
+    {
+        return $this->setParameter('endpoint', $value);
+    }
+
 
     /**
      * @return string
      */
-    public function getEndpoint() {
-        return 'https://api-proxy.cmpayments.com';
+    public function getEndpoint()
+    {
+        return $this->getParameter('endpoint');
     }
+
 
     /**
      * Send the data
      *
      * @param array $data
      *
-     * @return AbstractResponse
+     * @return array
      */
-    public function sendRequest($data) {
-        $this->httpClient->getEventDispatcher()->addListener('request.error', function (Event $event) use ($data) {
-            $response = $event['response'];
-            if ($response->isError()) {
-                $event->stopPropagation();
-            }
-        });
-
-        $httpRequest = $this->httpClient->createRequest(
+    public function sendRequest($data)
+    {
+        $response = $this->httpClient->request(
             $this->getMethod(),
             $this->getEndpoint() . $this->getUri(),
             [
                 'Content-type'  => 'application/json',
-                'Authorization' => "OAuth " . $this->_getAuthorizationHeader(),
+                'Authorization' => "OAuth " . $this->getAuthorizationHeader(),
             ],
             ($this->getMethod() !== self::METHOD_POST ? null : json_encode($data))
         );
 
-        return $httpRequest->send();
+        return json_decode((string)$response->getBody(), true);
     }
 
     /**
@@ -112,14 +117,15 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
      *
      * @see https://docs.cmtelecom.com/payments/v0.2#/authentication%7Cbuilding_the_header_string
      */
-    private function _getAuthorizationHeader() {
+    private function getAuthorizationHeader()
+    {
         $header = '';
         foreach ([
                      'oauth_consumer_key'     => $this->getOauthConsumerKey(),
-                     'oauth_nonce'            => $this->_getNonce(),
-                     'oauth_signature'        => $this->_getSignature(),
+                     'oauth_nonce'            => $this->getNonce(),
+                     'oauth_signature'        => $this->getSignature(),
                      'oauth_signature_method' => self::SIGNATURE_METHOD,
-                     'oauth_timestamp'        => (string)$this->_getTimestamp(),
+                     'oauth_timestamp'        => (string)$this->getTimestamp(),
                      'oauth_version'          => self::VERSION,
                  ] as $key => $value) {
             $header .= $key . '="' . $value . '", ';
@@ -133,12 +139,13 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
      *
      * @return string
      */
-    private function _getSignature() {
+    private function getSignature()
+    {
         $parameters = [
             rawurlencode("oauth_consumer_key=" . $this->getOauthConsumerKey()),
-            rawurlencode("oauth_nonce=" . $this->_getNonce()),
+            rawurlencode("oauth_nonce=" . $this->getNonce()),
             rawurlencode("oauth_signature_method=" . self::SIGNATURE_METHOD),
-            rawurlencode("oauth_timestamp=" . (string)$this->_getTimestamp()),
+            rawurlencode("oauth_timestamp=" . (string)$this->getTimestamp()),
             rawurlencode("oauth_version=" . self::VERSION),
         ];
 
@@ -159,23 +166,24 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest {
     /**
      * @return string
      */
-    private function _getNonce() {
-        if ($this->_nonce === null) {
-            $this->_nonce = md5(openssl_random_pseudo_bytes(32));
+    private function getNonce()
+    {
+        if ($this->nonce === null) {
+            $this->nonce = md5(openssl_random_pseudo_bytes(32));
         }
 
-        return $this->_nonce;
+        return $this->nonce;
     }
 
     /**
      * @return integer
      */
-    private function _getTimestamp() {
-        if ($this->_timestamp === null) {
-            $this->_timestamp = time();
+    private function getTimestamp()
+    {
+        if ($this->timestamp === null) {
+            $this->timestamp = time();
         }
 
-        return $this->_timestamp;
+        return $this->timestamp;
     }
-
 }

@@ -2,28 +2,23 @@
 
 namespace Omnipay\CmPayments\Message;
 
-class FetchPaymentMethodsRequest extends AbstractRequest {
+class FetchPaymentMethodsRequest extends AbstractRequest
+{
 
     /**
      * @return string
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return AbstractRequest::METHOD_GET;
     }
 
     /**
      * @return string
      */
-    public function getUri() {
+    public function getUri()
+    {
         return '/payment_methods/v1';
-    }
-
-    /**
-     * Override the fetch payment API because the proxy has no support for this endpoint
-     * @return string
-     */
-    public function getEndpoint() {
-        return 'https://api.cmpayments.com';
     }
     
     /**
@@ -32,7 +27,8 @@ class FetchPaymentMethodsRequest extends AbstractRequest {
      *
      * @return mixed
      */
-    public function getData() {
+    public function getData()
+    {
         return [];
     }
 
@@ -41,7 +37,8 @@ class FetchPaymentMethodsRequest extends AbstractRequest {
      *
      * @return FetchPaymentMethodsResponse
      */
-    public function sendData($data) {
-        return new FetchPaymentMethodsResponse($this, $this->sendRequest($data)->json());
+    public function sendData($data)
+    {
+        return new FetchPaymentMethodsResponse($this, $this->sendRequest($data));
     }
 }

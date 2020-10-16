@@ -7,19 +7,22 @@ namespace Omnipay\CmPayments\Message;
  *
  * @method FetchTransactionResponse send()
  */
-class FetchTransactionRequest extends AbstractRequest {
+class FetchTransactionRequest extends AbstractRequest
+{
 
     /**
      * @return string
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return AbstractRequest::METHOD_GET;
     }
 
     /**
      * @return string
      */
-    public function getUri() {
+    public function getUri()
+    {
         return '/payments/v1/' . $this->getTransactionReference();
     }
 
@@ -29,7 +32,8 @@ class FetchTransactionRequest extends AbstractRequest {
      *
      * @return mixed
      */
-    public function getData() {
+    public function getData()
+    {
         return [];
     }
 
@@ -38,8 +42,8 @@ class FetchTransactionRequest extends AbstractRequest {
      *
      * @return FetchTransactionResponse
      */
-    public function sendData($data) {
-        return new FetchTransactionResponse($this, $this->sendRequest($data)->json());
+    public function sendData($data)
+    {
+        return new FetchTransactionResponse($this, $this->sendRequest($data));
     }
-
 }

@@ -2,26 +2,30 @@
 
 namespace Omnipay\CmPayments\Message;
 
-class FetchIssuersRequest extends AbstractRequest {
+class FetchIssuersRequest extends AbstractRequest
+{
 
     /**
      * @return string
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return AbstractRequest::METHOD_GET;
     }
 
     /**
      * @return string
      */
-    public function getUri() {
+    public function getUri()
+    {
         return '/issuers/v1/ideal';
     }
 
     /**
      * @return array
      */
-    public function getData() {
+    public function getData()
+    {
         return [];
     }
 
@@ -30,7 +34,8 @@ class FetchIssuersRequest extends AbstractRequest {
      *
      * @return FetchIssuersResponse
      */
-    public function sendData($data) {
-        return new FetchIssuersResponse($this, $this->sendRequest($data)->json());
+    public function sendData($data)
+    {
+        return new FetchIssuersResponse($this, $this->sendRequest($data));
     }
 }
