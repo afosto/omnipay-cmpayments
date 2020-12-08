@@ -29,10 +29,14 @@ class PurchaseRequest extends AbstractRequest
                 'failed_url'    => $this->getReturnUrl(),
                 'expired_url'   => $this->getReturnUrl(),
                 'callback_url'  => $this->getNotifyUrl(),
-                'consumer_name' => $this->getCard()->getBillingName(),
-                'purchase_id'   => $this->getDescription(),
+
+                'purchase_id' => $this->getDescription(),
             ],
         ];
+
+        if ($this->getCard() !== null) {
+            $payment['payment_details']['consumer_name'] = $this->getCard()->getBillingName();
+        }
 
         if ($this->getPaymentMethod() == 'iDEAL' && $this->getIssuer()) {
             $payment['payment_details']['issuer_id'] = $this->getIssuer();
