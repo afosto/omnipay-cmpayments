@@ -16,7 +16,8 @@ class FetchIssuersResponse extends AbstractResponse implements FetchIssuersRespo
     {
         $issuers = [];
         foreach ($this->data as $name => $id) {
-            $issuers[] = new Issuer($id, $name);
+            //This API only returns iDEAL issuers
+            $issuers[] = new Issuer($id, $name, "iDEAL");
         }
 
         return $issuers;
