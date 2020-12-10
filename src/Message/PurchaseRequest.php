@@ -29,8 +29,7 @@ class PurchaseRequest extends AbstractRequest
                 'failed_url'    => $this->getReturnUrl(),
                 'expired_url'   => $this->getReturnUrl(),
                 'callback_url'  => $this->getNotifyUrl(),
-
-                'purchase_id' => $this->getDescription(),
+                'purchase_id'   => $this->getPurchaseId(),
             ],
         ];
 
@@ -41,9 +40,9 @@ class PurchaseRequest extends AbstractRequest
         if ($this->getPaymentMethod() == 'iDEAL' && $this->getIssuer()) {
             $payment['payment_details']['issuer_id'] = $this->getIssuer();
         }
-        // for credit cards we have to pass allong these issuers
+        // for credit cards we have to pass along these issuers
         if ($this->getPaymentMethod() == 'Creditcard') {
-            $payment['payment_details']['issuers'] = ['MasterCard','Visa'];
+            $payment['payment_details']['issuers'] = ['MasterCard', 'Visa'];
         }
         $data['payments'] = [$payment];
 
@@ -64,6 +63,16 @@ class PurchaseRequest extends AbstractRequest
     public function getMethod()
     {
         return AbstractRequest::METHOD_POST;
+    }
+
+    public function getPurchaseId()
+    {
+        return $this->getParameter('purchaseId');
+    }
+
+    public function setPurchaseId($value)
+    {
+        return $this->setParameter('purchaseId', $value);
     }
 
     /**
